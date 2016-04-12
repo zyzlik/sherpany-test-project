@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'map',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -55,7 +57,7 @@ ROOT_URLCONF = 'sherpany.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -119,3 +121,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+# GOOGLE_CLIENT_ID = '763614038266-b3ipmv5t79o65cbmscl76271i1c45om9.apps.googleusercontent.com'
+# GOOGLE_CLIENT_SECRET = 'Wv1YYpta4JqF871xEVU1MD9L'
+GOOGLE_API_KEY = 'AIzaSyDjutzo6XF16uhd9rFj7e-YrLaPm7J5RVI'
+CREDENTIALS = os.path.join(BASE_DIR, 'sherpany', 'sherpany.json')
+SCOPES = ['https://www.googleapis.com/auth/fusiontables']
