@@ -1,0 +1,17 @@
+.wrapper {
+	min-height: 100vh;
+	background: #333;
+}
+
+.map {
+	height: 60vh;
+	border: 5px solid #cacaca;
+}
+
+p.alert {
+	display: none;
+}
+
+.hidden {
+	display: none;
+}

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block script %}
+	<script>
+	var map;
+		function initMap() {
+			map = new google.maps.Map(document.getElementById('map'), {
+			    center: {lat: 55.72504493415047, lng: 37.64696099999997},
+			    zoom: 15
+			});
+
+			var geocoder = new google.maps.Geocoder;
+			var error_message = 'No address! Try something else!'
+			var markers = [];
+
+			map.addListener('click', function(point) {
+				point_latLng = {
+					lat: point.latLng.lat(),
+					lng: point.latLng.lng()
+				}
+				
+			  	geocodeLatLng(geocoder, point_latLng, map);
+			    
+			});
+
+			$('#map').one("click", function() {
+				$('#reset').show();
+			});
+
+			$('form').on('submit', function(ev) {
+				ev.preventDefault();
+				var action = $(this).attr('action');
+				var table = $('input[name="fusion_table"]').attr('value');
+				$.ajaxSetup({
+				    beforeSend: function(xhr, settings) {
+				        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+				            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				        }
+				    }
+				});
+				$.post(action, {fusion_table: table});
+				$('#list').empty();
+				clearMarkers();
+			});
+
+
+			function make_marker(point_latLng){
+			  	var marker = new google.maps.Marker({
+			    	position: point_latLng,
+			    	map: map,
+			  	});
+			  	markers.push(marker);
+			}
+
+			function setMapOnAll(map) {
+				for (var i = 0; i < markers.length; i++) {
+			    	markers[i].setMap(map);
+			  	}
+			}
+
+			function clearMarkers() {
+				setMapOnAll(null);
+				markers = [];
+			}
+
+			  
+			function geocodeLatLng(geocoder, latlng, map) {
+				geocoder.geocode({'location': latlng}, function(results, status) {
+				    if (status === google.maps.GeocoderStatus.OK) {
+				      	if (results[0].types.indexOf('street_address') != -1) {
+				        	save_location(results[0].formatted_address, latlng);
+				      	} else {
+				        	show_error_message(error_message);
+				      	}
+				    } else {
+				    	show_error_message(error_message);
+				    }
+				});
+			}
+
+			function show_error_message(message) {
+				$('#error p').show().text(message);
+				$('#error p').hide(4000);
+			}
+
+			function save_location(address, latlng) {
+				$.ajaxSetup({
+				    beforeSend: function(xhr, settings) {
+				        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+				            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				        }
+				    }
+				});
+				$.post(
+					"{% url 'save_location' %}",
+					{
+						fusion_table: '{{ fusion_table.table_id }}',
+						address:address,
+						lat: latlng.lat,
+						lng: latlng.lng
+					},
+					function(data) {
+						if(data) {
+							$('#list').append('<span class="label">' + data + '</span> ');
+							make_marker(point_latLng, map);
+						}
+						else {
+							show_error_message('This address is alredy exists')
+						}
+					});
+			}
+
+			
+		}
+	</script>
+	<script src="https://maps.googleapis.com/maps/api/js?key={{ API_KEY }}&callback=initMap" async defer>
+	</script>
+{% endblock script %}
+{% block content %}
+	<div id="error"><p class="callout alert text-center"></p></div>
+	<div id="map" class="map row expanded"></div>
+	<div id="list" class="row">
+	</div>
+	<hr>
+		<div id="reset" class="row hidden">
+			<form action="{% url 'reset' %}" method="POST">
+				{% csrf_token %}
+				<input type="hidden" name = "fusion_table" value="{{ fusion_table.table_id }}">
+				<input type="submit" class="button warning" value="Reset">
+			</form>
+		</div>
+
+{% endblock content %}
+{% block body_script %}
+{{ block.super }}	
+	<script src="{% static 'js/getCookie.js' %}"></script>
+{% endblock body_script %}
