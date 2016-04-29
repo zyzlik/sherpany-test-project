@@ -39,12 +39,14 @@ def authorize():
 
 
 class FusionTable:
+    # It is faster to check if address in a list
+    # than to make a query
+    list_addresses = []
 
     def create_fusion_table():
         service = authorize()
         sql = "CREATE TABLE 'locations' (lat: NUMBER, lng: NUMBER, address: STRING)"
         response = service.query().sql(sql=sql).execute()
-        print(response)
         return response['rows'][0][0]
 
     def __init__(self, table_id=None):
@@ -60,12 +62,14 @@ class FusionTable:
         return response
 
     def reset_fusion_table(self):
+        self.list_addresses = []
         service = authorize()
         sql = "DELETE FROM %s" % (self.table_id)
         response = service.query().sql(sql=sql).execute()
         return response
 
     def insert_fusion_table(self, lat, lng, address):
+        self.list_addresses.append(address)
         service = authorize()
         sql = "INSERT INTO %s (lat, lng, address) VALUES (%s, %s, '%s')" % (
             self.table_id, lat, lng, address
@@ -73,13 +77,7 @@ class FusionTable:
         service.query().sql(sql=sql).execute()
 
     def check_dublicate_fusion_table(self, address):
-        service = authorize()
-        sql = "SELECT * FROM %s WHERE address = '%s'" % (
-            self.table_id, address
-        )
-        response = service.query().sql(sql=sql).execute()
-        if response.get('rows'):
-            print('DUBLICATE!')
+        if address in self.list_addresses:
             return True
         return False
 
