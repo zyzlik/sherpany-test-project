@@ -126,8 +126,8 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-# GOOGLE_CLIENT_ID = '763614038266-b3ipmv5t79o65cbmscl76271i1c45om9.apps.googleusercontent.com'
-# GOOGLE_CLIENT_SECRET = 'Wv1YYpta4JqF871xEVU1MD9L'
-GOOGLE_API_KEY = 'AIzaSyDjutzo6XF16uhd9rFj7e-YrLaPm7J5RVI'
+GOOGLE_CLIENT_ID = 'client-id'
+GOOGLE_CLIENT_SECRET = 'client-secret'
+GOOGLE_API_KEY = 'api-key'
 CREDENTIALS = os.path.join(BASE_DIR, 'sherpany', 'sherpany.json')
 SCOPES = ['https://www.googleapis.com/auth/fusiontables']
